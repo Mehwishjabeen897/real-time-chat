@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Real-Time Chat App</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f0f2f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    .chat-container {
+        width: 350px;
+        background: #fff;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .chat-header {
+        background: #0a66c2;
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .chat-box {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+
+    .message {
+        margin: 6px 0;
+        padding: 8px 12px;
+        border-radius: 15px;
+        max-width: 75%;
+        animation: fadeIn 0.3s ease;
+        font-size: 14px;
+    }
+
+    .sent {
+        background: #0a66c2;
+        color: white;
+        align-self: flex-end;
+    }
+
+    .received {
+        background: #e4e6eb;
+        color: black;
+        align-self: flex-start;
+    }
+
+    .time {
+        font-size: 10px;
+        opacity: 0.7;
+        margin-top: 3px;
+        text-align: right;
+    }
+
+    .chat-input {
+        display: flex;
+        border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        outline: none;
+    }
+
+    .chat-input button {
+        padding: 10px 15px;
+        border: none;
+        background: #0a66c2;
+        color: white;
+        cursor: pointer;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">Chat App</div>
+    <div class="chat-box" id="chatBox"></div>
+
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatBox = document.getElementById("chatBox");
+    const input = document.getElementById("messageInput");
+
+    let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+
+    messages.forEach(msg => addMessage(msg.text, msg.type, msg.time));
+
+    function sendMessage() {
+        const text = input.value.trim();
+        if (text === "") return;
+
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        addMessage(text, "sent", time);
+        saveMessage(text, "sent", time);
+
+        input.value = "";
+
+        setTimeout(() => botReply(), 800);
+    }
+
+    function addMessage(text, type, time) {
+        const msgDiv = document.createElement("div");
+        msgDiv.classList.add("message", type);
+
+        msgDiv.innerHTML = `
+            ${text}
+            <div class="time">${time}</div>
+        `;
+
+        chatBox.appendChild(msgDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function saveMessage(text, type, time) {
+        messages.push({ text, type, time });
+        localStorage.setItem("chatMessages", JSON.stringify(messages));
+    }
+
+    function botReply() {
+        const replies = [
+            "Hello! 👋",
+            "How can I help you?",
+            "Nice to chat with you 😊",
+            "Frontend development is fun 🚀",
+            "Keep learning 💪"
+        ];
+
+        const reply = replies[Math.floor(Math.random() * replies.length)];
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+        addMessage(reply, "received", time);
+        saveMessage(reply, "received", time);
+    }
+</script>
+
+</body>
+</html>
